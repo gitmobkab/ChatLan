@@ -16,8 +16,7 @@ def connection_log(client_socket: socket.socket, client_nickname, client_addr):
     console.print(f"[blue]{client_nickname} {addr}")
     client.sendall(client_nickname+b" As joined the chat")
 
-# HOST = socket.gethostbyname(socket.gethostname())
-HOST = "127.0.0.1" # Standard loopback interface address (localhost)
+HOST = socket.gethostbyname(socket.gethostname())
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 DEFAULT_BYTE_SIZE = 1024
 

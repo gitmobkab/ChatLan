@@ -1,12 +1,44 @@
 import socket
+import argparse
+import random
+from rich.console import Console
 
-SERVER_HOST = "127.0.0.1"  # The server's hostname or IP address
-SERVER_PORT = 65432  # The port used by the server
-NICKNAME = "Mob (@admin)"
+console= Console()
+
+command_parser = argparse.ArgumentParser(
+    prog="Client",
+    description="A command to connect to a server on socket",
+)
+
+command_parser.add_argument(
+    "-a","--address",
+    required=True,
+    help="Specify the server address in the 'IP:PORT' format"
+)
+
+command_parser.add_argument(
+    "-n","--name",
+    required=False,
+    default= "User" + str(random.randint(1,255)),
+    help="The Desired username for the upcoming session"
+)
+
+args = command_parser.parse_args()
+
+if not ":" in args.address:
+    console.print("[red]Error: The address must be respect the 'IP:PORT' format[/red]")
+    raise BaseException
+
+ADDRESS: str = args.address
+NAME: str = args.name
+
+HOST_IP,HOST_PORT = ADDRESS.split(":")
+HOST_PORT = int(HOST_PORT)
+
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-    client.connect((SERVER_HOST, SERVER_PORT))
-    msg = bytes(NICKNAME,encoding="utf-8")
+    client.connect((HOST_IP, HOST_PORT))
+    msg = bytes(NAME,encoding="utf-8")
     client.sendall(msg)
     data = client.recv(1024)
 
