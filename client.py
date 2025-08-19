@@ -11,15 +11,14 @@ command_parser = argparse.ArgumentParser(
 )
 
 command_parser.add_argument(
-    "-a","--address",
-    required=True,
+    "address",
     help="Specify the server address in the 'IP:PORT' format"
 )
 
 command_parser.add_argument(
     "-n","--name",
     required=False,
-    default= "User" + str(random.randint(1,255)),
+    default= "User" + str(random.randint(1,455)),
     help="The Desired username for the upcoming session"
 )
 
