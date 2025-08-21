@@ -2,7 +2,7 @@ import socket
 import argparse
 import random
 from rich.console import Console
-
+from utils import get_data
 console= Console()
 
 command_parser = argparse.ArgumentParser(
@@ -26,19 +26,19 @@ args = command_parser.parse_args()
 
 if not ":" in args.address:
     console.print("[red]Error: The address must be respect the 'IP:PORT' format[/red]")
-    raise BaseException
+    raise SystemExit(1)
 
 ADDRESS: str = args.address
 NAME: str = args.name
-
 HOST_IP,HOST_PORT = ADDRESS.split(":")
 HOST_PORT = int(HOST_PORT)
 
+def client_login(username,sender: socket.socket):
+    username = bytes(username,encoding="utf-8")
+    sender.sendall(username)
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-    client.connect((HOST_IP, HOST_PORT))
-    msg = bytes(NAME,encoding="utf-8")
-    client.sendall(msg)
-    data = client.recv(1024)
-
-print(data)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+    server.connect((HOST_IP, HOST_PORT))
+    client_login(NAME,server)
+    data = get_data(server)
+    console.rule(data)
