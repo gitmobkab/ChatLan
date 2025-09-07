@@ -1,6 +1,8 @@
 import socket
 import argparse
 import random
+from rich.text import Text
+from rich.rule import Rule
 from rich.console import Console
 from rich.layout import Layout
 from utils import *
@@ -43,20 +45,34 @@ def client_login(username,client_socket: socket.socket):
     username = bytes(username,encoding="utf-8")
     client_socket.sendall(username)
 
+def format_for_print(data: str):
+    if data.endswith("@login"):
+       return Rule(data.removesuffix(" @login"))
+    elif data.endswith("@client"):
+        words = data.removesuffix(" @client").split()
+        username = Text(words[0],style="blue")
+        return f"[{username}]: "+ " ".join(words[1:])
+        
+        
+        
+        
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((HOST_IP, HOST_PORT))
 client_login(NAME,client)
-data = get_data(client)
-console.rule(data)
+data = format_for_print(get_data(client))
+console.print(data)
 while True:
     try:
         user_prompt = console.input("[blue]Type out something:")
-        user_prompt = f"[{NAME}]: {user_prompt}".encode("utf-8")
-        client.sendall(user_prompt)
-        data = get_data(client)
-        chat.append(data)
-        console.print(chat)
+        msg = format_for_send(NAME,user_prompt)
+        send_data(client,msg)
+        try:
+            data = get_data(client)
+            chat.append(format_for_print(data))
+            console.print(chat)
+        except socket.error:
+            console.rule("DISCONNECTED FROM SERVER",style="dark_red")
     except KeyboardInterrupt:
         console.print("Exiting program",style="red")
         client.close()
