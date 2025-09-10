@@ -36,6 +36,11 @@ class ClientApp(App):
     def action_toggle_dark(self) -> None:
         return super().action_toggle_dark()
     
+    def on_input_submitted(self):
+        input = self.query_one(Input)
+        data_to_sent = format_for_send(NAME,input.value)
+        send_data(CLIENT,data_to_sent)
+        input.clear()
     
     
     
