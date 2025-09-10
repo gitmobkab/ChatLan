@@ -1,9 +1,10 @@
 from textual.app import App,ComposeResult
 from textual.binding import Binding
-from textual.events import Enter, Event
 from textual.widgets import RichLog,Input,Header,Footer
 import socket
+from rich.rule import Rule
 from client import *
+
     
 
 
@@ -22,7 +23,8 @@ class ClientApp(App):
                 latest_msg = format_for_print(data)
                 self.call_from_thread(chat_log.write,latest_msg,scroll_end=True,animate=True)
             except socket.error:
-                console.rule("DISCONNECTED FROM SERVER",style="dark_red")
+                chat_log.write(Rule("DISCONNECTED FROM SERVER", style="dark_red"))
+                break
     
     def compose(self) -> ComposeResult:
         yield Header()
@@ -44,15 +46,5 @@ if __name__ == "__main__":
     CLIENT.connect((HOST_IP,HOST_PORT))
     client_login(NAME,CLIENT)
     data = format_for_print(get_data(CLIENT))
-    # console.print(data)
-    # while True:
-    #     try:
-    #         user_prompt = console.input("[blue]Type out something:")
-    #         msg = format_for_send(NAME,user_prompt)
-    #         send_data(CLIENT,msg)
-    #     except KeyboardInterrupt:
-    #         console.print("Exiting program",style="red")
-    #         CLIENT.close()
-    #         break
     ChatLanClientApp = ClientApp()
     ChatLanClientApp.run()
