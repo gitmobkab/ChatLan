@@ -39,6 +39,7 @@ NAME: str = args.name
 HOST_IP,HOST_PORT = ADDRESS.split(":")
 HOST_PORT = int(HOST_PORT)
 chat = []
+CLIENT = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 def client_login(username,client_socket: socket.socket):
@@ -46,35 +47,38 @@ def client_login(username,client_socket: socket.socket):
     client_socket.sendall(username)
 
 def format_for_print(data: str):
-    if data.endswith("@login"):
-       return Rule(data.removesuffix(" @login"))
+    if data.endswith("@new_connection"):
+       return Rule(data.removesuffix(" @new_connection"),style="green")
+    
     elif data.endswith("@client"):
         words = data.removesuffix(" @client").split()
         username = Text(words[0],style="blue")
         return f"[{username}]: "+ " ".join(words[1:])
+    
+    elif data.endswith("@disconnection"):
+        return Rule(data.removesuffix(" @disconnection"),style="red")
         
         
         
         
-
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((HOST_IP, HOST_PORT))
-client_login(NAME,client)
-data = format_for_print(get_data(client))
-console.print(data)
-while True:
-    try:
-        user_prompt = console.input("[blue]Type out something:")
-        msg = format_for_send(NAME,user_prompt)
-        send_data(client,msg)
+if __name__ == "__main__":
+    CLIENT.connect((HOST_IP, HOST_PORT))
+    client_login(NAME,CLIENT)
+    data = format_for_print(get_data(CLIENT))
+    console.print(data)
+    while True:
         try:
-            data = get_data(client)
-            chat.append(format_for_print(data))
-            console.print(chat)
-        except socket.error:
-            console.rule("DISCONNECTED FROM SERVER",style="dark_red")
-    except KeyboardInterrupt:
-        console.print("Exiting program",style="red")
-        client.close()
-        break
+            user_prompt = console.input("[blue]Type out something:")
+            msg = format_for_send(NAME,user_prompt)
+            send_data(CLIENT,msg)
+            try:
+                data = get_data(CLIENT)
+                chat.append(format_for_print(data))
+                console.print(chat)
+            except socket.error:
+                console.rule("DISCONNECTED FROM SERVER",style="dark_red")
+        except KeyboardInterrupt:
+            console.print("Exiting program",style="red")
+            CLIENT.close()
+            break
         

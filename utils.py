@@ -8,7 +8,7 @@ def get_data(conn: socket.socket ,bytes_size:int =DEFAULT_BYTES_SIZE, data_encod
     data = data.decode(data_encoding)
     return data
 
-def send_data(conn: socket.socket, data: str, data_encoding: str = "utf-8"):
+def send_data(conn: socket.socket, data: str = "", data_encoding: str = "utf-8"):
     try:
         words = data.split()
         if not words:
@@ -49,6 +49,7 @@ class Client():
     
     def __eq__(self, value: object) -> bool:
         return isinstance(value,Client) and self.socket == value.socket
+    
     
 
 if __name__ == "__main__":
