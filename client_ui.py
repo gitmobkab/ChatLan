@@ -12,10 +12,12 @@ from client import *
 class ClientApp(App):
     
     BINDINGS = [
-        Binding("ctrl+d","toggle_dark","Toggle the app dark mode")
+        Binding("ctrl+d","toggle_dark","Toggle the app dark mode"),
+        Binding("ctrl+q","close_app","Close the terminal application")
     ]
     
     def update_chat_log(self):
+        input_widget = self.query_one(Input)
         chat_log = self.query_one(RichLog)
         while True:
             try:
@@ -24,6 +26,7 @@ class ClientApp(App):
                 self.call_from_thread(chat_log.write,latest_msg,scroll_end=True,animate=True)
             except socket.error:
                 chat_log.write(Rule("DISCONNECTED FROM SERVER", style="dark_red"))
+                input_widget.disabled = True
                 break
     
     def compose(self) -> ComposeResult:
@@ -36,11 +39,21 @@ class ClientApp(App):
     def action_toggle_dark(self) -> None:
         return super().action_toggle_dark()
     
+    def action_close_app(self):
+        send_data(CLIENT)
+        CLIENT.close()
+        return self.action_quit()
+    
+    
     def on_input_submitted(self):
-        input = self.query_one(Input)
-        data_to_sent = format_for_send(NAME,input.value)
+        input_widget = self.query_one(Input)
+        if input_widget.value == "!quit":
+            send_data(CLIENT)
+            CLIENT.close()
+            return self.action_quit()
+        data_to_sent = format_for_send(NAME,input_widget.value)
         send_data(CLIENT,data_to_sent)
-        input.clear()
+        input_widget.clear()
     
     
     

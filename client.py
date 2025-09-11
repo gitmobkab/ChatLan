@@ -47,12 +47,16 @@ def client_login(username,client_socket: socket.socket):
     client_socket.sendall(username)
 
 def format_for_print(data: str):
-    if data.endswith("@login"):
-       return Rule(data.removesuffix(" @login"))
+    if data.endswith("@new_connection"):
+       return Rule(data.removesuffix(" @new_connection"),style="green")
+    
     elif data.endswith("@client"):
         words = data.removesuffix(" @client").split()
         username = Text(words[0],style="blue")
         return f"[{username}]: "+ " ".join(words[1:])
+    
+    elif data.endswith("@disconnection"):
+        return Rule(data.removesuffix(" @disconnection"),style="red")
         
         
         
