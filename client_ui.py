@@ -17,17 +17,14 @@ class ClientApp(App):
     ]
     
     def update_chat_log(self):
-        input_widget = self.query_one(Input)
-        chat_log = self.query_one(RichLog)
         while True:
-            try:
-                data = get_data(CLIENT)
-                latest_msg = format_for_print(data)
-                self.call_from_thread(chat_log.write,latest_msg,scroll_end=True,animate=True)
-            except socket.error:
+            data = get_data(CLIENT)
+            latest_msg = format_for_print(data)
+            chat_log = self.query_one(RichLog)
+            if latest_msg == None:
                 chat_log.write(Rule("DISCONNECTED FROM SERVER", style="dark_red"))
-                input_widget.disabled = True
                 break
+            self.call_from_thread(chat_log.write,latest_msg,scroll_end=True,animate=True)
     
     def compose(self) -> ComposeResult:
         yield Header()
