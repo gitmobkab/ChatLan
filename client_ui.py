@@ -1,9 +1,10 @@
 from textual.app import App,ComposeResult
 from textual.binding import Binding
-from textual.widgets import RichLog,Input,Header,Footer
+from textual.widgets import Input,Header,Footer
+from textual.containers import VerticalScroll
 import socket
-from rich.rule import Rule
 from client import *
+from chat_widget import Message
 
     
 
@@ -20,15 +21,15 @@ class ClientApp(App):
         while True:
             data = get_data(CLIENT)
             latest_msg = format_for_print(data)
-            chat_log = self.query_one(RichLog)
+            chat_log = self.query_one("#chat_log")
             if latest_msg == None:
-                chat_log.write(Rule("DISCONNECTED FROM SERVER", style="dark_red"))
                 break
+            pass
             self.call_from_thread(chat_log.write,latest_msg,scroll_end=True,animate=True)
     
     def compose(self) -> ComposeResult:
         yield Header()
-        yield RichLog()
+        yield VerticalScroll(id="chat_log")
         yield Input(placeholder="Type out something...",validate_on=["submitted"])
         yield Footer()
         self.run_worker(self.update_chat_log,thread=True)
@@ -60,6 +61,5 @@ if __name__ == "__main__":
     CLIENT = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     CLIENT.connect((HOST_IP,HOST_PORT))
     client_login(NAME,CLIENT)
-    data = format_for_print(get_data(CLIENT))
     ChatLanClientApp = ClientApp()
     ChatLanClientApp.run()
