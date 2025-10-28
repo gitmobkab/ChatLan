@@ -69,9 +69,20 @@ def handle_client(client: Client):
     broadcast(disconnection_msg)
         
     
+FORBIDDEN_BINDS = [
+    "127.0.0.1",
+    "0.0.0.0"
+]
 
 HOST = socket.gethostbyname(socket.gethostname())
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+PORT = 65432
+console.print("Lazzy Ip fetching....")
+if HOST in FORBIDDEN_BINDS:
+    console.print("UH OH...",style="red")
+    console.print("Damn... We did meesed up")
+    console.print(f"The IP we got is forbidden\nOthers Computers can't connect with {HOST}")
+    while True:
+        raise Exception("Sorry... ")
 
 if __name__=="__main__":
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -30,7 +30,7 @@ class Message(Static):
         return markdown_text
     
 class MyMessageApp(App):
-    CSS_PATH="message.tcss"
+    CSS_PATH="chatlan.tcss"
     
     
     def compose(self) -> ComposeResult:

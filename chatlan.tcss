@@ -1,12 +1,12 @@
-.info{
+Message.info{
     border-title-align: center;
     border: panel $primary;
 }
-.warning{
+Message.warning{
     border-title-align: center;
     border: panel $warning;
 }
-.alert{
+Message.alert{
     border-title-align: center;
     border: panel $error;
 }
