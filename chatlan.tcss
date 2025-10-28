@@ -10,3 +10,9 @@ Message.alert{
     border-title-align: center;
     border: panel $error;
 }
+Alert.new_connection{
+    border: outer $warning;
+}
+Alert.disconnection{
+    border: outer $error;
+}
