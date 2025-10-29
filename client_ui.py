@@ -11,6 +11,8 @@ from chat_widget import Message
 
 
 class ClientApp(App):
+    CSS_PATH = "chatlan.tcss"
+    
     
     BINDINGS = [
         Binding("ctrl+d","toggle_dark","Toggle the app dark mode"),
@@ -20,12 +22,25 @@ class ClientApp(App):
     def update_chat_log(self):
         while True:
             data = get_data(CLIENT)
-            latest_msg = format_for_print(data)
-            chat_log = self.query_one("#chat_log")
-            if latest_msg == None:
+            words = data.split()
+            chat_author = words[0]
+            msg_content = words[1:-1]
+            _role = words[-1]
+            chat_log = self.query_one("#chat_log", VerticalScroll)
+            if msg_content == None:
                 break
-            pass
-            self.call_from_thread(chat_log.write,latest_msg,scroll_end=True,animate=True)
+            if "@client" in _role:
+                msg_mode = None
+            elif "@info" in _role:
+                msg_mode = "info"
+            elif "@warning" in _role:
+                msg_mode = "warning"
+            elif "@alert" in _role:
+                msg_mode = "alert"
+            self.call_from_thread(chat_log.mount,
+                                  Message(title=chat_author,
+                                          content=" ".join(msg_content),
+                                          mode=msg_mode))
     
     def compose(self) -> ComposeResult:
         yield Header()

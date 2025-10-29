@@ -43,13 +43,13 @@ def client_unregister(client_to_delete: Client):
         clients.remove(client_to_delete)
         client_to_delete.socket.close()
     except ValueError:
-        print("client not found")
+        console.print("client not found", style="bold dark_red")
         console.print(clients)
         console.print(client_to_delete)
         
 
 def handle_client(client: Client):
-    broadcast(format_for_send(client.name,"joined the chat","new_connection"))
+    broadcast(format_for_send("SERVER",f"{client.name} joined the chat","info"))
     while True:
         try:
             msg = get_data(client.socket)
@@ -65,7 +65,7 @@ def handle_client(client: Client):
         
     client_unregister(client)
     disconnection_log(client)
-    disconnection_msg = format_for_send(client.name,"left the chat","disconnection")
+    disconnection_msg = format_for_send("SERVER",f"{client.name} left the chat","alert")
     broadcast(disconnection_msg)
         
     
