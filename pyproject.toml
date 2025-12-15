@@ -1,0 +1,37 @@
+[project]
+name = "chatlan"
+version = "0.1.0"
+description = "a TUI program to chat with friends on a LAN"
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+authors = [
+    {name = "gitmobkab",email = "richmondaurel77@gmail.com"}
+]
+keywords = ["Chat","LAN","TUI","CLI","terminal"]
+dependencies = [
+    "textual (>=6.9.0,<7.0.0)",
+    "typer (>=0.20.0,<0.21.0)"
+]
+dynamic = ["classifiers"]
+
+[project.scripts]
+chat = "chatlan.main:chat_command"
+
+[project.urls]
+repository = "https://github.com/gitmobkab/ChatLan"
+
+
+
+[tool.poetry]
+packages = [{include = "chatlan", from = "src"}]
+
+classifiers = [
+    "Environment :: Console"
+]
+
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
