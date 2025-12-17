@@ -1,5 +1,7 @@
 from rich import print as rprint
 from typing import Literal
+from re import fullmatch
+from sys import exit
 
 def echo(message:str,mode: Literal["info","success","warning","error"]):
     prefixs = {
@@ -11,6 +13,15 @@ def echo(message:str,mode: Literal["info","success","warning","error"]):
     
     prefix = prefixs[mode]
     rprint(f"{prefix} [bold]{message}")
+    
+def check_ip(ip :str) -> None:
+    first_test = "^127\\.([0-9]{1,3}\\.){2}[0-9]{1,3}$"
+    if fullmatch(first_test,ip) is not None or ip == "0.0.0.0":
+        echo(f"Looks Like Your Os returned an invalid address, Chatlan got {ip}","error")
+        echo(f"Make sure you're connected to a WLAN or LAN, wifi (recommended)","info")
+        echo(f"If the issue persist, see [blue link=https://github.com] ChatLan#Troubleshooting or open an issue on the repo","info")
+        raise exit(1)
+    
     
 def format_msg(message: str | bytes) -> bytes:
     """
