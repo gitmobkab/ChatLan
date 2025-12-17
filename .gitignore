@@ -209,3 +209,6 @@ __marimo__/
 
 #vscode config
 .vscode/
+
+# poetry generated file
+poetry.lock
