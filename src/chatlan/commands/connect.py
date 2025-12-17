@@ -1,10 +1,10 @@
 import typer
-import socket
-import re
+from socket import gethostname
+from re import fullmatch
 from ..client_utils import ClientApp
-from ..utils import echo
+from ..utils import echo,check_ip
 
-DEFAULT_USERNAME = socket.gethostname()
+DEFAULT_USERNAME = gethostname()
 
 connect_app = typer.Typer()
 
@@ -15,21 +15,16 @@ def parse_address(address:str) -> tuple[str,int]:
     IP part of ADDRESS is not a valid ip
         Make sure that the IP contains four numbers separated by dots (.)
         Make sure that each number of IP contains at least 1 digits and don't exceed 3 digits
-    [bold]Example: 192.168.1.9:8888
+    Example: 192.168.1.9:8888
     """
     
     try:
         ip, port = clean_address.split(":")
         
-        if ip == "127.0.0.1" or ip == "0.0.0.0":
-            echo(f"IP of ADDRESS can't be '127.0.0.1' or '0.0.0.0'\nAre You Sure {clean_address} is the server address ?","error")
-            raise typer.Exit(1)
-            
-        if re.fullmatch("^([0-9]{1,3}\\.){3}[0-9]{1,3}$",ip) is None:
+        if fullmatch("^([0-9]{1,3}\\.){3}[0-9]{1,3}$",ip) is None:
             echo(INVALID_IP_MSG,"error")
             raise typer.Exit(1)
-        
-            
+        check_ip(ip)    
     except ValueError:
         echo("The <ADDRESS> argument must be in the format IP:PORT","error")
         echo("If you don't have a ChatLan Server already Running you might prefer to use 'chat init'","info")
