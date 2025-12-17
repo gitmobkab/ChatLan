@@ -15,6 +15,7 @@
     - [Connect To a ChatLan Server (connect)](#connect)
 - [Examples](#examples)
 - [Notes and Limitations](#notes-and-limitations)
+- [Troubleshooting](#troubleshooting)
 - [Planned Features](#planned-features)
 
 
@@ -138,8 +139,8 @@ this will show the following
             192.168.1.9:8888
             192.168.1.10:8888
 
-    > [!NOTE]
-    > The any ADDRESS with '127.0.0.1' as the IP are invalid
+> [!NOTE]
+> The any ADDRESS with '127.0.0.1' as the IP are invalid
 
 - options:
     - -u, --username [DEFAULT: your machine hostname]:
@@ -150,8 +151,8 @@ this will show the following
 
         i.e: 'mob-hpprobook'
 
-        > [!NOTE]
-        > If your username contains spaces you must surround it with quotes or double quotes **(i.e: "Cool User")**
+> [!NOTE]
+> If your username contains spaces you must surround it with quotes or double quotes **(i.e: "Cool User")**
     
 
 # Examples
@@ -248,6 +249,21 @@ $ chat connect 192.168.1.9:8888 -u "Cool User 2025"
 # or
 $ Chat connect -u "Cool User 2025" 192.168.1.9:8888
 ```
+# Troubleshooting
+
+> [!IMPORTANT]
+> On Linux/Mac, you may get the address '127.0.1.1:8888' when starting the chatlan server, 
+> This is an unreachable address caused by an incorrect network configuration
+> To fix this you must edit the `/etc/hosts` file. for example make sure that it's the same as the snippet below:
+```bash
+# Standard host addresses
+127.0.0.1  localhost
+::1        localhost ip6-localhost ip6-loopback
+ff02::1    ip6-allnodes
+ff02::2    ip6-allrouters
+# This host address
+# 127.0.1.1  mob-hpprobook # you just need to add a `#` at the start of the line `mob-hpprobook` should be your machine hostname 
+```
 
 # Notes & limitations
 
@@ -266,4 +282,4 @@ $ Chat connect -u "Cool User 2025" 192.168.1.9:8888
 
 - [ ] server broadcast input
 - [ ] message widget UI.
-- [ ] user random colors.
+- [ ] user random colors
