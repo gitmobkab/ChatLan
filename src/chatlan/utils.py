@@ -29,7 +29,7 @@ def check_ip(ip :str) -> None:
     if fullmatch(invalid_ip_test,ip) is not None or ip == "0.0.0.0":
         echo(f"Looks Like Your Os returned an invalid address, Chatlan got {ip}","error")
         echo(f"Make sure you're connected to a WLAN or LAN, wifi (recommended)","info")
-        echo(f"If the issue persist, see [blue link=https://github.com] ChatLan#Troubleshooting or open an issue on the repo","info")
+        echo(f"If the issue persist, see [blue link=https://github.com/gitmobkab/ChatLan/tree/rewrite#troubleshooting] ChatLan#Troubleshooting or open an issue on the repo","info")
         raise exit(1)
     
     
