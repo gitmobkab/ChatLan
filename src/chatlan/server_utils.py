@@ -1,8 +1,8 @@
 import asyncio
 from textual.binding import Binding
 from textual.app import App,ComposeResult
-from textual.widgets import Header,Footer,DataTable,RichLog
-from textual.containers import HorizontalGroup
+from textual.widgets import Header,Footer,DataTable,RichLog,Input
+from textual.containers import HorizontalGroup,VerticalGroup
 from contextlib import suppress
 from .utils import format_msg,unformat_msg
 
@@ -27,31 +27,35 @@ class ServerApp(App):
     def __init__(   self,
                     server_ip: str,
                     server_port: int,
+                    server_username: str,
                     driver_class = None,
                     css_path = None,
                     watch_css = True,
                     ansi_color = False
                  ):
         super().__init__(driver_class, css_path, watch_css, ansi_color)
-        self.clients: list[asyncio.StreamWriter] = list() 
+        self._clients: list[asyncio.StreamWriter] = list() 
         self._server_task: asyncio.Task | None = None
-        self.server: asyncio.Server | None = None
+        self._server: asyncio.Server | None = None
         self.server_ip = server_ip
         self.server_port = server_port
+        self.server_username = server_username
         
     
     def compose(self) -> ComposeResult:
         yield Header()
         with HorizontalGroup():
             yield DataTable(fixed_columns=2,fixed_rows=1)
-            yield RichLog()
+            with VerticalGroup():
+                yield RichLog()
+                yield Input(placeholder="Type out something...")
         yield Footer()
        
     
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
         table.add_columns("username","address")
-        table.add_row("you",self.server_ip) 
+        table.add_row(f"{self.server_username} (you)",self.server_ip) 
         
     def on_ready(self) -> None:
         asyncio.create_task(self.start_server())
@@ -61,12 +65,20 @@ class ServerApp(App):
         chat_view = self.query_one(RichLog)
         chat_view.write(f"[-] Server started at '{self.server_ip}:{self.server_port}'")
     
+    def on_input_submitted(self):
+        input_widget = self.query_one(Input)
+        text = input_widget.value
+        if text:
+            msg = f"{self.server_username}(server admin): {text}"
+            asyncio.create_task(self.broadcast(msg))
+            input_widget.clear()
+    
     async def start_server(self):
-        self.server = await asyncio.start_server(self.handle_new_user,
+        self._server = await asyncio.start_server(self.handle_new_user,
                                                  self.server_ip,
                                                  self.server_port)
         
-        self._server_task = asyncio.create_task(self.server.serve_forever())
+        self._server_task = asyncio.create_task(self._server.serve_forever())
         self.notify("READY TO SCREAM",title="Server Started Successfully")
      
     def action_toggle_dark(self) -> None:
@@ -85,7 +97,7 @@ class ServerApp(App):
         
         chat_view.write(f"[+] New connection: {username}")        
         await self.broadcast(f"{username} joined the chat")
-        self.clients.append(writer)
+        self._clients.append(writer)
 
         try:
             while True:
@@ -97,7 +109,7 @@ class ServerApp(App):
         except Exception as exc:
             chat_view.write(f"[!] Client handler error: {exc}")
         finally:
-            self.clients.remove(writer)
+            self._clients.remove(writer)
             with suppress(Exception):
                 writer.close()
                 await writer.wait_closed()
@@ -120,7 +132,7 @@ class ServerApp(App):
             chat_log.write(message)
         message = format_msg(message) # format the message for broadcasting
         
-        for writer in self.clients:
+        for writer in self._clients:
             try:
                 writer.write(message)
             except Exception:
@@ -128,30 +140,30 @@ class ServerApp(App):
                 continue
 
         # gather drains; return_exceptions to avoid one slow client canceling broadcast
-        if self.clients:
-            await asyncio.gather(*(w.drain() for w in self.clients), return_exceptions=True)
+        if self._clients:
+            await asyncio.gather(*(w.drain() for w in self._clients), return_exceptions=True)
             
     async def stop_server(self):
-        # cancel server serve_forever task
+        # cancel _server serve_forever task
         if self._server_task:
             self._server_task.cancel()
             with suppress(asyncio.CancelledError):
                 await self._server_task
 
-        if self.server:
-            self.server.close()
-            await self.server.wait_closed()
+        if self._server:
+            self._server.close()
+            await self._server.wait_closed()
 
         # close all client writers
         
-        for writer in self.clients:
+        for writer in self._clients:
             with suppress(Exception):
                 writer.close()
                 await writer.wait_closed()
-        self.clients.clear()
+        self._clients.clear()
         
     def action_close_app(self):
-        if self.server is not None:
+        if self._server is not None:
             asyncio.create_task(self.stop_server())
         return super().action_quit()
         
