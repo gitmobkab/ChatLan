@@ -1,5 +1,5 @@
 import typer
-from ..utils import ServerUi
+from ..server_utils import ServerApp
 import socket
 
 init_app = typer.Typer()
@@ -15,11 +15,12 @@ def init(
                                    help="The port to use for the server")  
         
         ): 
+    """
+    Initialize a chatlan server at the host ip address (most users don't need to use any of the options)
+    """
 
-    server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    server_socket.bind((IP_ADDRESS,port))
-    server_socket.listen()
-    server_socket.setblocking(False)
     
-    server_app = ServerUi(server_socket=server_socket)
+    server_app = ServerApp(
+                           server_ip=IP_ADDRESS,
+                           server_port=port)
     server_app.run()
