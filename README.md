@@ -22,7 +22,7 @@
 In order to use **ChatLan**, you must install it with the following command:
 
 ```bash
-$ pip install ChatLan
+pip install chatlan
 ```
 
 # Quick overview
