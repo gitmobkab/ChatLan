@@ -39,6 +39,7 @@ class ClientApp(App):
         
     def on_ready(self) -> None:
         asyncio.create_task(self.connect_to_server())
+        self.notify("Welcome To ChatLan Client")
         
     
     async def connect_to_server(self):
@@ -50,12 +51,13 @@ class ClientApp(App):
     async def listen_for_messages(self):
         chat_log = self.query_one("#chat_log",RichLog)
         if self._reader is None:
-            self.notify("Connection to server Failed",severity="error")
-            return
+            self.notify("Connection to server Failed",severity="error") # For whatever reason this is never triggered
+            return                                                      # but at least it stop the type checker from complaining
         try: 
             while True:
                 data = await self._reader.readline()
                 if not data:
+                    chat_log.write("Disconnected from server")
                     self.notify("Disconnected from server",severity="error")
                     break
                 msg = unformat_msg(data)
