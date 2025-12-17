@@ -15,8 +15,18 @@ def echo(message:str,mode: Literal["info","success","warning","error"]):
     rprint(f"{prefix} [bold]{message}")
     
 def check_ip(ip :str) -> None:
-    first_test = "^127\\.([0-9]{1,3}\\.){2}[0-9]{1,3}$"
-    if fullmatch(first_test,ip) is not None or ip == "0.0.0.0":
+    INVALID_IP_MSG :str = """
+    IP part of ADDRESS is not a valid ip
+        Make sure that the IP contains four numbers separated by dots (.)
+        Make sure that each number of IP contains at least 1 digits and don't exceed 3 digits
+    Example: 192.168.1.9:8888
+    """
+    if fullmatch("^([0-9]{1,3}\\.){3}[0-9]{1,3}$",ip) is None:
+            echo(INVALID_IP_MSG,"error")
+            raise exit(1)
+        
+    invalid_ip_test = "^127\\.([0-9]{1,3}\\.){2}[0-9]{1,3}$"
+    if fullmatch(invalid_ip_test,ip) is not None or ip == "0.0.0.0":
         echo(f"Looks Like Your Os returned an invalid address, Chatlan got {ip}","error")
         echo(f"Make sure you're connected to a WLAN or LAN, wifi (recommended)","info")
         echo(f"If the issue persist, see [blue link=https://github.com] ChatLan#Troubleshooting or open an issue on the repo","info")

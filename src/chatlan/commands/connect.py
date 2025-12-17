@@ -1,6 +1,5 @@
 import typer
 from socket import gethostname
-from re import fullmatch
 from ..client_utils import ClientApp
 from ..utils import echo,check_ip
 
@@ -11,19 +10,10 @@ connect_app = typer.Typer()
 
 def parse_address(address:str) -> tuple[str,int]:
     clean_address = address.strip()
-    INVALID_IP_MSG :str = """
-    IP part of ADDRESS is not a valid ip
-        Make sure that the IP contains four numbers separated by dots (.)
-        Make sure that each number of IP contains at least 1 digits and don't exceed 3 digits
-    Example: 192.168.1.9:8888
-    """
     
     try:
         ip, port = clean_address.split(":")
         
-        if fullmatch("^([0-9]{1,3}\\.){3}[0-9]{1,3}$",ip) is None:
-            echo(INVALID_IP_MSG,"error")
-            raise typer.Exit(1)
         check_ip(ip)    
     except ValueError:
         echo("The <ADDRESS> argument must be in the format IP:PORT","error")
