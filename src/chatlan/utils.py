@@ -34,3 +34,25 @@ def format_msg(message: str | bytes) -> bytes:
         return message + b"\n"
     
     return b""
+
+def unformat_msg(message: str | bytes) -> str:
+    """
+    Should be called after `reader.readline()`
+    
+    take a bytes object and return a string without the last char
+    
+    basically this is supposed to remove the `\\n` char after `reader.readline()`
+    
+    but keep in mind that this only remove the last char
+    
+    i.e:
+        - unformat_msg(b"Mobsy\\n") -> "Mobsy"
+        - unformat_msg(b"Mobsy") -> "Mobs"
+    """
+    if type(message) is bytes:
+        unformatted_msg = message.decode()
+        return unformatted_msg[:-1]
+    elif type(message) is str:
+        return message[:-1]
+    
+    return ""
