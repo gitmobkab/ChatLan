@@ -102,11 +102,18 @@ this will show the following
 
 - ## init
 
-**Usage: chat init [options]** 
+**Usage: chat init [options] [IP]** 
 
-> **Initialize a chatlan server at the host ip address**
+> **Initialize a chatlan server at a given ip address**
 
 ![init command help menu](images/init_command.png)
+
+- arguments:
+    - IP optional [default: your current ip address]:
+        
+        a string representing the ip to use in the server runtime, this argument is only meant for advanced configuration most users are advise to only use the options of **`chat init`**
+
+        i.e: `chat init 192.168.2.54`
 
 - options:
     - -p, --port \<PORT> [DEFAULT: 8888]: 
@@ -115,6 +122,12 @@ this will show the following
 
         **if ignored the default ChatLan PORT (8888) is used**
     
+    - -u, --username \<USERNAME>:
+
+        USERNAME is a string representing the server username for the chat session, this is only relevant if you plan to use the server to chat directly
+
+        **if ignored your computer hostname is used instead**
+
     - -- help:
         
         Display the help menu
@@ -140,7 +153,8 @@ this will show the following
             192.168.1.10:8888
 
 > [!NOTE]
-> The any ADDRESS with '127.0.0.1' as the IP are invalid
+> The any ADDRESS with '127.*' or '0.0.0.0' as the IP are invalid
+> i.e : 127.0.0.1, 127.0.0.2, 127.20.50,254
 
 - options:
     - -u, --username [DEFAULT: your machine hostname]:
@@ -280,6 +294,6 @@ ff02::2    ip6-allrouters
 
 # Planned features: 
 
-- [ ] server broadcast input
+- [x] server broadcast input
 - [ ] message widget UI.
 - [ ] user random colors
