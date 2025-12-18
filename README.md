@@ -1,4 +1,10 @@
 # ChatLan 
+> [!IMPORTANT]
+> This version is considered as the old/legacy version of chatlan
+> if you're looking for the latest version go to **[Chatlan rewrite branch](https://github.com/gitmobkab/ChatLan/tree/rewrite "chatlan rewrite branch")** instead
+> 
+> **We strongly discourage you to use it because of many bugs, Use at your own risk**
+
 
 ## What is it ?
 
