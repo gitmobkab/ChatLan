@@ -1,6 +1,9 @@
 # ChatLan
 
-![preview image](images/preview.png)
+<p align="center">
+  <img src="images/preview.png" alt="preview image">
+</p>
+
 
 ## an easy to use chat app command line interface tool
 
@@ -46,19 +49,23 @@ this will show the following screen:
 
 for example:
 
-| username | address      |
------------|--------------|
-|    you   | 192.168.1.9  |
-|    mobsy | 192.168.1.25 |
-|    mob   | 192.168.1.11 |
+| username          | address      |
+--------------------|--------------|
+|   USERNAME  (you) | 192.168.1.9  |
+|       mobsy       | 192.168.1.25 |
+|        mob        | 192.168.1.11 |
 
 > [!NOTE]
 > The First row is always the server
 
-- **At your right is the Chat View Were everything every events(New Connection/Disconnection,etc) /messages are displayed**
+- **At your right is the Chat Panel composed of the Chat Log and Your Chat Input**
+  - On the top of the Chat Panel is the **ChatLog** inside of it, every events are displayed
 
-> [!NOTE]
-> For now the server doesn't can't send it's own messages, will be implemented in the next update
+    For ChatLan an event is either when a client joined/leaved the server the always start with **`[-]`** or **`[+]`**
+    or When a user send a message, those don't start with a given prefix
+
+  - on the bottom of the Chat Panel is your Chat Input, this works in the same way as the client, you use it to send messages as the server admin
+
 
 2. In order for anyone to chat just need to use the following command:
 
@@ -87,10 +94,11 @@ Then the user can chat as Mob as long as the server is running:
 the command name of the **ChatLan** is **chat**
 
 the availvable commands are:
- - chat
+ - [chat](#chat)
  - [chat init](#init)
  - [chat connect](#connect)
 
+- ## chat
 the chat command doesn't do anythig by itself, except displaying a help menu
 
 ```bash
@@ -279,7 +287,7 @@ ff02::2    ip6-allrouters
 # 127.0.1.1  mob-hpprobook # you just need to add a `#` at the start of the line `mob-hpprobook` should be your machine hostname 
 ```
 
-# Notes & limitations
+# Notes and limitations
 
 > [!IMPORTANT]
 > No Secure Messaging System: **The message aren't actually encrypted, so don't use ChatLan for a professional/marketing context**
