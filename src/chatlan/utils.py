@@ -2,6 +2,7 @@ from rich import print as rprint
 from typing import Literal
 from re import fullmatch
 from sys import exit
+from random import choice
 
 def echo(message:str,mode: Literal["info","success","warning","error"]):
     prefixs = {
@@ -77,3 +78,39 @@ def unformat_msg(message: str | bytes) -> str:
         return message[:-1]
     
     return ""
+
+def parse_chatlan_msg(message: str) -> tuple[str, str, str]:
+    """
+    parse message in the format **color:title:content**
+    
+    raise ValueError if the format is incorrect, this function never split any ":" inside of content
+    
+    :param message: the message to parse
+    :type message: str
+    :return: a tuple of three strings in the order **title, content, color**
+    :rtype: tuple[str, str, str]
+    """
+    color, title, content = message.split(":",2) # just to raise ValueError if the string doesn't respect the format
+    return (title, content, color)
+
+def hex_color_genrator() -> str:
+    """
+    Return a random string representing a css hexadecimal color code string
+    
+    i.e: 
+    
+        - hex_color_generator() -> "#F45BA5"
+        - hex_color_generator() -> "#5AFC09"
+    
+    :return: a string representing a css hexadecimal color code string 
+    :rtype: str
+    """
+    HEX_CHARS = "ABCDEF0123456789"
+    hex_color = "#"
+    for i in range(6):
+        hex_color += choice(HEX_CHARS)
+    return hex_color
+
+if __name__ == "__main__":
+    for i in range(8):
+        print(hex_color_genrator())
