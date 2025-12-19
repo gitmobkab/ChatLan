@@ -1,10 +1,12 @@
 import asyncio
 from textual.binding import Binding
 from textual.app import App,ComposeResult
-from textual.widgets import Header,Footer,DataTable,RichLog,Input
-from textual.containers import HorizontalGroup,VerticalGroup
+from textual.widgets import Header,Footer,DataTable,Input
+from textual.containers import HorizontalGroup,VerticalGroup,VerticalScroll
+from rich.text import Text
 from contextlib import suppress
-from .utils import format_msg,unformat_msg
+from .utils import format_msg,unformat_msg,parse_chatlan_msg,hex_color_genrator
+from .chat_widget import Message
 
 
 
@@ -14,7 +16,11 @@ class ServerApp(App):
     
     CSS = """
         DataTable{
-            width: 30%;
+            min-width: 30%;
+            max-width: 40%;
+        }
+        VerticalScroll{
+            background: $surface;
         }
     """
     
@@ -40,39 +46,47 @@ class ServerApp(App):
         self.server_ip = server_ip
         self.server_port = server_port
         self.server_username = server_username
-        
+        self.SERVER_COLOR = "#FFD700"
     
     def compose(self) -> ComposeResult:
         yield Header()
         with HorizontalGroup():
             yield DataTable(fixed_columns=2,fixed_rows=1)
             with VerticalGroup():
-                yield RichLog()
+                yield VerticalScroll(id="chat_view")
                 yield Input(placeholder="Type out something...")
         yield Footer()
        
     
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
-        table.add_columns("username","address")
-        table.add_row(f"{self.server_username} (you)",self.server_ip) 
+        table.add_columns("username","address","color")
+        table.add_row(f"{self.server_username} (you)",
+                      self.server_ip,
+                      Text(self.SERVER_COLOR, style=self.SERVER_COLOR)) 
         
     def on_ready(self) -> None:
         asyncio.create_task(self.start_server())
         self.notify("[b]Welcome To ChatLan Server !")
         
+        self.draw("Welcome",f"[-] Server started at '{self.server_ip}:{self.server_port}'","blue")
         
-        chat_view = self.query_one(RichLog)
-        chat_view.write(f"[-] Server started at '{self.server_ip}:{self.server_port}'")
     
     def on_input_submitted(self):
         input_widget = self.query_one(Input)
         text = input_widget.value
         if text:
-            msg = f"{self.server_username}(server admin): {text}"
+            msg = f"{self.SERVER_COLOR}:{self.server_username}(server admin): {text}"
             asyncio.create_task(self.broadcast(msg))
             input_widget.clear()
     
+    def draw(self, title: str = "Title",value: str="", color :str = "white" ,selector: str = "#chat_view"):
+        """Draw/Mount a ChatLan.Message widget on a selected widget, the widget must be mount compatible"""
+        selected_widget = self.query_one(selector)
+        selected_widget.anchor()
+        message_widget = Message(title=title, content=value, color=color)
+        selected_widget.mount(message_widget)
+
     async def start_server(self):
         self._server = await asyncio.start_server(self.handle_new_user,
                                                  self.server_ip,
@@ -88,15 +102,21 @@ class ServerApp(App):
         peer = writer.get_extra_info("peername")
         username_msg = await reader.readline() # b"Mobsy\n" for example
         username = unformat_msg(username_msg) # "Mobsy" as the username
+        USER_COLOR_CODE = hex_color_genrator()
+        BYTES_USER_COLOR_CODE = USER_COLOR_CODE.encode()
         
         # QUERIES
-        chat_view = self.query_one(RichLog)
+        
         table = self.query_one(DataTable)
-        table.add_row(username,peer[0],key=username)
+        table.add_row(username, 
+                      peer[0], 
+                      Text(USER_COLOR_CODE, style=USER_COLOR_CODE),
+                      key=username)
         
-        
-        chat_view.write(f"[+] New connection: {username}")        
-        await self.broadcast(f"{username} joined the chat")
+        NEW_LOGIN_MSG = f"{username} joined the chat"
+        NEW_LOGIN_MSG_TITLE = "[+] New Connection"
+        NEW_LOGIN_MSG_COLOR = "green"
+        await self.broadcast(f"{NEW_LOGIN_MSG_COLOR}:{NEW_LOGIN_MSG_TITLE}:{NEW_LOGIN_MSG}")
         self._clients.append(writer)
 
         try:
@@ -105,16 +125,18 @@ class ServerApp(App):
                 if not data:
                     break
                 # echo and broadcast
-                await self.broadcast(data)
+                await self.broadcast(BYTES_USER_COLOR_CODE+b":"+data)
         except Exception as exc:
-            chat_view.write(f"[!] Client handler error: {exc}")
+            self.draw("[!] Client handler error:",str(exc),"red")
         finally:
             self._clients.remove(writer)
             with suppress(Exception):
                 writer.close()
                 await writer.wait_closed()
-            chat_view.write(f"[-] Disconnected: {username}")
-            await self.broadcast(f"{username} left the chat")
+                DISCONNECTION_MSG_TITLE = "[-] Disconnection"
+                DISCONNECTION_MSG = f"{username} left the chat"
+                DISCONNECTION_MSG_COLOR = "red"
+            await self.broadcast(f"{DISCONNECTION_MSG_COLOR}:{DISCONNECTION_MSG_TITLE}:{DISCONNECTION_MSG}")
             table.remove_row(username)
             
     
@@ -123,13 +145,16 @@ class ServerApp(App):
     
         This function encrypt the message to be compatible with `reader.readline()` so you don't need to add `\\n` yourself
         
-        Also it will log the message content inside of the first RichLog is found
+        Also it will log the message content inside of the first '#chat_view it find
         """
-        chat_log = self.query_one(RichLog)
+        
         if type(message) is bytes:
-            chat_log.write(unformat_msg(message)) # quickly display the message 
-        else:
-            chat_log.write(message)
+            new_message = unformat_msg(message) 
+            message_data = parse_chatlan_msg(new_message)
+            self.draw(*message_data)
+        elif type(message) is str:
+            message_data = parse_chatlan_msg(message)
+            self.draw(*message_data)
         message = format_msg(message) # format the message for broadcasting
         
         for writer in self._clients:

@@ -1,9 +1,10 @@
+import asyncio
 from textual.app import App,ComposeResult
 from textual.binding import Binding
-from textual.widgets import Input,Header,Footer,RichLog
-import asyncio
-from .utils import format_msg,unformat_msg  
-
+from textual.widgets import Input,Header,Footer
+from textual.containers import VerticalScroll
+from .utils import format_msg,unformat_msg,parse_chatlan_msg  
+from .chat_widget import Message
 
 
 class ClientApp(App):
@@ -33,7 +34,7 @@ class ClientApp(App):
     
     def compose(self) -> ComposeResult:
         yield Header()
-        yield RichLog(id="chat_log")
+        yield VerticalScroll(id="chat_view")
         yield Input(placeholder="Type out something...",validate_on=["submitted"])
         yield Footer()
         
@@ -41,6 +42,12 @@ class ClientApp(App):
         asyncio.create_task(self.connect_to_server())
         self.notify("Welcome To ChatLan Client")
         
+    def draw(self, title: str = "Title",value: str="", color :str = "white" ,selector: str = "#chat_view"):
+        """Draw/Mount a ChatLan.Message widget on a selected widget, the widget must be mount compatible"""
+        selected_widget = self.query_one(selector)
+        selected_widget.anchor()
+        message_widget = Message(title=title, content=value, color=color)
+        selected_widget.mount(message_widget)
     
     async def connect_to_server(self):
         self._reader, self._writer = await asyncio.open_connection(self.ip,self.port) 
@@ -49,7 +56,6 @@ class ClientApp(App):
         self.notify("Connected to Server !")
             
     async def listen_for_messages(self):
-        chat_log = self.query_one("#chat_log",RichLog)
         if self._reader is None:
             self.notify("Connection to server Failed",severity="error") # For whatever reason this is never triggered
             return                                                      # but at least it stop the type checker from complaining
@@ -57,14 +63,20 @@ class ClientApp(App):
             while True:
                 data = await self._reader.readline()
                 if not data:
-                    chat_log.write("Disconnected from server")
-                    self.notify("Disconnected from server",severity="error")
+                    DISCONNECTION_MESSAGE_TITLE = "[!] Disconnected from server"
+                    DISCONNECTION_MESSAGE = "It seems that you have been disconnected from the server, maybe the server is closed or maybe your network is too slow"
+                    DISCONNECTION_MESSAGE_COLOR = "red"
+                    self.draw(DISCONNECTION_MESSAGE_TITLE,DISCONNECTION_MESSAGE,DISCONNECTION_MESSAGE_COLOR)
+                    self.notify("Disconnected from server",severity="error",timeout=10)
                     break
                 msg = unformat_msg(data)
                 if msg:
-                    chat_log.write(msg)
+                    msg_content = parse_chatlan_msg(msg)
+                    self.draw(*msg_content)
         except Exception as error:
-            chat_log.write(f"Unexpected Error received: {error}")
+            self.draw("[!] Unexpected Error occured",
+                      str(error),
+                      "red")
         finally:
             if self._writer:
                 asyncio.create_task(self.disconnect())
