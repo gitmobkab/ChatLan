@@ -1,6 +1,6 @@
 import typer
 from socket import gethostname
-from ..client_utils import ClientApp
+from ..client_app import ClientApp
 from ..utils import echo,check_ip
 
 DEFAULT_USERNAME = gethostname()

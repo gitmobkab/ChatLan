@@ -1,6 +1,6 @@
 from typer import Typer,Option,Argument
 from socket import gethostbyname,gethostname
-from ..server_utils import ServerApp
+from ..server_app import ServerApp
 from ..utils import check_ip
 
 init_app = Typer()

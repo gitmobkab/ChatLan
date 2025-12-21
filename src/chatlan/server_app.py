@@ -6,7 +6,7 @@ from textual.containers import HorizontalGroup,VerticalGroup,VerticalScroll
 from rich.text import Text
 from contextlib import suppress
 from .utils import format_msg,unformat_msg,parse_chatlan_msg,hex_color_genrator
-from .chat_widget import Message
+from .message_widget import Message
 
 
 

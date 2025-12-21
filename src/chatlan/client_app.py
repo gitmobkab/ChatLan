@@ -4,7 +4,7 @@ from textual.binding import Binding
 from textual.widgets import Input,Header,Footer
 from textual.containers import VerticalScroll
 from .utils import format_msg,unformat_msg,parse_chatlan_msg  
-from .chat_widget import Message
+from .message_widget import Message
 
 
 class ClientApp(App):
