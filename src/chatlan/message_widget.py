@@ -5,6 +5,10 @@ from re import findall
 from time import strftime
 from .exceptions import DangerousOperation
 
+# Sometimes, i wonder why i built a such a big project for nobody to use it...
+# then i remember that funny comment are golds so i just keep going
+# until the pain and the loneliness kill me
+
 class Message(Widget):
     """
     The ChatLan Message widget
